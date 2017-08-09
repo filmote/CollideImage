@@ -77,7 +77,9 @@ void flashRedLED() {
 bool collide(int16_t x1, int16_t y1, uint8_t *img1, int16_t x2, int16_t y2, uint8_t *img2) {
 
   #define IMG_DATA_OFFSET 2
-
+  
+  const uint8_t PROGMEM lookup[] { 0xFF >> 8, 0xFF >> 7, 0xFF >> 6, 0xFF >> 5, 0xFF >> 4, 0xFF >> 3, 0xFF >> 2, 0xFF >> 1 };
+  
   uint8_t w1 = pgm_read_byte(&img1[0]);
   uint8_t h1 = pgm_read_byte(&img1[1]);
   uint8_t w2 = pgm_read_byte(&img2[0]);
@@ -124,8 +126,8 @@ bool collide(int16_t x1, int16_t y1, uint8_t *img1, int16_t x2, int16_t y2, uint
     int16_t img1_bottom_bit = (overlap_bottom - y1) % 8;
 
     int16_t img2_left = (overlap_left - x2);
-    int16_t img2_top_bit = (overlap_top - y2) % 8;
     int16_t img2_top_row = (overlap_top - y2) / 8;
+    int16_t img2_top_bit = (overlap_top - y2) % 8;
     int16_t img2_bottom_row = (overlap_bottom - y2 - 1) / 8;
     int16_t img2_bottom_bit = (overlap_bottom - y2) % 8;
 
@@ -146,8 +148,8 @@ bool collide(int16_t x1, int16_t y1, uint8_t *img1, int16_t x2, int16_t y2, uint
         // Retrieve the byte of data from the current column.  If the overlap is less than one row high and
         // the bottom bit is not zero, then we need to mask off the lower bits as they are out of range ..
         
-        uint16_t d1 = pgm_read_byte(&img1[i1]) & (img1_top_row == img1_bottom_row && img1_bottom_bit != 0 ? uint8_t(0xFF >> (8 - img1_bottom_bit)) : 0xFF);
-        uint16_t d2 = pgm_read_byte(&img2[i2]) & (img2_top_row == img2_bottom_row && img2_bottom_bit != 0 ? uint8_t(0xFF >> (8 - img2_bottom_bit)) : 0xFF);
+        uint16_t d1 = pgm_read_byte(&img1[i1]) & (img1_top_row == img1_bottom_row && img1_bottom_bit != 0 ? pgm_read_byte(&lookup[img1_bottom_bit]) : 0xFF);
+        uint16_t d2 = pgm_read_byte(&img2[i2]) & (img2_top_row == img2_bottom_row && img2_bottom_bit != 0 ? pgm_read_byte(&lookup[img1_bottom_bit]) : 0xFF);
 
 
         // If we are not at the last row of the overlap, retrieve the byte if data exactly below the one
@@ -156,11 +158,11 @@ bool collide(int16_t x1, int16_t y1, uint8_t *img1, int16_t x2, int16_t y2, uint
         // not be zero and hence to compare a contiguous 8 bits we need to harvest them from two rows ..
         
         if (img1_top_bit > 0 && img1_top_row < img1_bottom_row) { 
-          d1 = d1 | ((pgm_read_byte(&img1[i1 + w1]) & (img1_top_row + 1 == img1_bottom_row ? uint8_t(0xFF >> (8 - img1_bottom_bit)) : 0xFF )) << 8); 
+          d1 = d1 | ((pgm_read_byte(&img1[i1 + w1]) & (img1_top_row + 1 == img1_bottom_row ? pgm_read_byte(&lookup[img1_bottom_bit]) : 0xFF )) << 8); 
         }
         
         if (img2_top_bit > 0 && img2_top_row < img2_bottom_row) { 
-          d2 = d2 | ((pgm_read_byte(&img2[i2 + w2]) & (img2_top_row + 1 == img2_bottom_row ? uint8_t(0xFF >> (8 - img2_bottom_bit)) : 0xFF )) << 8); 
+          d2 = d2 | ((pgm_read_byte(&img2[i2 + w2]) & (img2_top_row + 1 == img2_bottom_row ? pgm_read_byte(&lookup[img1_bottom_bit]) : 0xFF )) << 8); 
         }
         
 
