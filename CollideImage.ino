@@ -105,9 +105,9 @@ bool collide(int16_t x1, int16_t y1, uint8_t *img1, int16_t x2, int16_t y2, uint
 
 
 
-    // The data in an image is defined left to right in bands (rows) of 8 pixel bands with the least 
-    // significant bit at the top and the most significant at the bottom.  Consecutive rows of data 
-    // describe vertical bits 8 - 15, 16 - 23 and so on.
+    // The data in an image is defined left to right in bands (rows) that are 8 pixel high (one byte)
+    // with the least significant bit at the top and the most significant at the bottom.  Consecutive 
+    // rows of data describe vertical bits 8 - 15, 16 - 23 and so on.
 
     // Determine the portion of the first image that is constrained by the overlapping rectangle.  
     // The top row and bit describe how far from the top of the image the overlap begins, likewise the
