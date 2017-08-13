@@ -2,10 +2,12 @@
 #include "Images.h"
 Arduboy2 arduboy;
 
+const uint8_t PROGMEM lookup[] { 0xFF >> 8, 0xFF >> 7, 0xFF >> 6, 0xFF >> 5, 0xFF >> 4, 0xFF >> 3, 0xFF >> 2, 0xFF >> 1 };
+
 int16_t x1 = 48;
 int16_t y1 = 16;
-int16_t x2 = 84;
-int16_t y2 = 22;
+int16_t x2 = 50; //84;
+int16_t y2 = 50; //22;
 
 bool checkCollision = false;
 
@@ -78,8 +80,6 @@ bool collide(int16_t x1, int16_t y1, uint8_t *img1, int16_t x2, int16_t y2, uint
 
   #define IMG_DATA_OFFSET 2
   
-  const uint8_t PROGMEM lookup[] { 0xFF >> 8, 0xFF >> 7, 0xFF >> 6, 0xFF >> 5, 0xFF >> 4, 0xFF >> 3, 0xFF >> 2, 0xFF >> 1 };
-
   uint8_t w1 = pgm_read_byte(&img1[0]);
   uint8_t h1 = pgm_read_byte(&img1[1]);
   uint8_t w2 = pgm_read_byte(&img2[0]);
@@ -149,7 +149,7 @@ bool collide(int16_t x1, int16_t y1, uint8_t *img1, int16_t x2, int16_t y2, uint
       // the bottom bit is not zero, then we need to mask off the lower bits as they are out of range ..
       
       uint16_t d1 = pgm_read_byte(&img1[i1]) & (img1_top_row == img1_bottom_row && img1_bottom_bit != 0 ? pgm_read_byte(&lookup[img1_bottom_bit]) : 0xFF);
-      uint16_t d2 = pgm_read_byte(&img2[i2]) & (img2_top_row == img2_bottom_row && img2_bottom_bit != 0 ? pgm_read_byte(&lookup[img1_bottom_bit]) : 0xFF);
+      uint16_t d2 = pgm_read_byte(&img2[i2]) & (img2_top_row == img2_bottom_row && img2_bottom_bit != 0 ? pgm_read_byte(&lookup[img2_bottom_bit]) : 0xFF);
 
 
 
@@ -163,7 +163,7 @@ bool collide(int16_t x1, int16_t y1, uint8_t *img1, int16_t x2, int16_t y2, uint
       }
       
       if (img2_top_bit > 0 && img2_top_row < img2_bottom_row) { 
-        d2 = d2 | ((pgm_read_byte(&img2[i2 + w2]) & (img2_top_row + 1 == img2_bottom_row ? pgm_read_byte(&lookup[img1_bottom_bit]) : 0xFF )) << 8); 
+        d2 = d2 | ((pgm_read_byte(&img2[i2 + w2]) & (img2_top_row + 1 == img2_bottom_row ? pgm_read_byte(&lookup[img2_bottom_bit]) : 0xFF )) << 8); 
       }
       
 
@@ -178,9 +178,9 @@ bool collide(int16_t x1, int16_t y1, uint8_t *img1, int16_t x2, int16_t y2, uint
       // If there has been a collision, then we can exit out of here!  This algorithm checks collisions by 
       // scanning for collisions left to right then row by row.  Collisions detected near the top-left hand 
       // corner will be found quickly compared to a collision inthe lower right-hand corner ..
-     
+
       if ((d1 & d2) > 0) { 
-      Serial.println("Collide !");
+        Serial.println("Collide !");
         return true;
       }
 
